@@ -35,13 +35,19 @@ void exec_noop(client_t *client, char *args)
     print_response(client->fd, 200, "");
 }
 
-static bool has_command(client_t *client, char *command, int valread)
+static bool has_left(client_t *client, int valread)
 {
     if (valread == 0) {
         exec_quit(client, NULL);
-        return false;
+        return true;
     }
+    return false;
+}
+
+static bool has_command(client_t *client, char *command)
+{
     if (command == NULL) {
+        print_response(client->fd, 500, "");
         return false;
     }
     return true;
@@ -52,20 +58,21 @@ void handle_commands(client_t *client, char *buffer, int valread)
     char *command = strtok(buffer, unwanted_chars);
     char *arg = strtok(NULL, unwanted_chars);
 
-    if (!has_command(client, command, valread))
+    if (has_left(client, valread))
         return;
     fprintf(stderr, "\033[93mLOG: Request received from %s:%d\n\033[0m",
         client->address, client->port);
+    if (!has_command(client, command))
+        return;
     if (strtok(NULL, unwanted_chars) != NULL) {
         print_response(client->fd, 501, "");
         return;
     }
-    for (int i = 0; i < NB_COMMANDS; i++) {
+    for (int i = 0; i < NB_COMMANDS; i++)
         if (strcmp(command, commands[i].name) == 0) {
             chdir(client->path);
             commands[i].func(client, arg);
             return;
         }
-    }
     print_response(client->fd, 500, "");
 }
