@@ -27,7 +27,7 @@ void exec_cwd(client_t *client, char *args)
         return;
     }
     if (args == NULL) {
-        print_response(client->fd, 501, "");
+        print_response(client->fd, 550, "");
         return;
     }
     if (chdir(args) == -1) {
