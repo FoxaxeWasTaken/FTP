@@ -8,8 +8,9 @@
 #include "ftp.h"
 
 static const help_t help[NB_HELP] = {
-    {NULL, "Commands supported:\nUSER PASS CWD CDUP QUIT DELE PWD NOOP PASV "
-    "PORT RETR STOR LIST\nType HELP <command> for more information."},
+    {NULL, "Commands supported: USER PASS CWD CDUP QUIT DELE PWD NOOP,"
+    " Type HELP <command> for more information."},
+    {"HELP", "HELP [<SP> <string>] <CRLF> : List available commands"},
     {"USER", "USER <SP> <username> <CRLF> : Specify user for authentication"},
     {"PASS", "PASS <SP> <password> <CRLF> : Specify password for "
     "authentication"},

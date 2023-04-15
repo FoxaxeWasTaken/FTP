@@ -85,7 +85,7 @@ void exec_quit(client_t *client, char *args);
 
 // Help
 
-#define NB_HELP 14
+#define NB_HELP 15
 
 typedef struct help_s {
     char *name;
