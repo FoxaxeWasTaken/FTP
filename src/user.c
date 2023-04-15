@@ -84,6 +84,7 @@ void exec_quit(client_t *client, char *args)
     free(client->username);
     client->username = NULL;
     free(client->path);
+    memset(client->input_buffer, 0, MAX_BUFFER_SIZE);
     fprintf(stderr, "\033[31mLOG: Client from %s:%d disconnected\n\033[0m",
         client->address, client->port);
 }

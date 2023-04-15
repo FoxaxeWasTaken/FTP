@@ -35,13 +35,17 @@ void exec_noop(client_t *client, char *args)
     print_response(client->fd, 200, "");
 }
 
-static bool has_left(client_t *client, int valread)
+static bool check_status(client_t *client, char *buffer, int valread)
 {
     if (valread == 0) {
         exec_quit(client, NULL);
-        return true;
+        return false;
     }
-    return false;
+    if (strlen(client->input_buffer) + strlen(buffer) > MAX_BUFFER_SIZE) {
+        exec_quit(client, NULL);
+        return false;
+    }
+    return true;
 }
 
 static bool has_command(client_t *client, char *command)
@@ -53,13 +57,11 @@ static bool has_command(client_t *client, char *command)
     return true;
 }
 
-void handle_commands(client_t *client, char *buffer, int valread)
+void on_command(client_t *client, char *buffer)
 {
     char *command = strtok(buffer, unwanted_chars);
     char *arg = strtok(NULL, unwanted_chars);
 
-    if (has_left(client, valread))
-        return;
     fprintf(stderr, "\033[93mLOG: Request received from %s:%d\n\033[0m",
         client->address, client->port);
     if (!has_command(client, command))
@@ -75,4 +77,26 @@ void handle_commands(client_t *client, char *buffer, int valread)
             return;
         }
     print_response(client->fd, 500, "");
+}
+
+void handle_commands(client_t *client, char *buffer, int valread)
+{
+    char *idx_ptr = NULL;
+    char *line_break_ptr = NULL;
+    char tmp_buffer[MAX_BUFFER_SIZE] = {0};
+
+    if (!check_status(client, buffer, valread)) {
+        return;
+    }
+    idx_ptr = strcat(client->input_buffer, buffer);
+    line_break_ptr = strchr(idx_ptr, '\n');
+    while (line_break_ptr) {
+        memcpy(tmp_buffer, idx_ptr, line_break_ptr - idx_ptr + 1);
+        on_command(client, tmp_buffer);
+        memmove(client->input_buffer, line_break_ptr + 1,
+            strlen(line_break_ptr + 1) + 1);
+        memset(tmp_buffer, 0, MAX_BUFFER_SIZE);
+        idx_ptr = line_break_ptr + 1;
+        line_break_ptr = strchr(idx_ptr, '\n');
+    }
 }

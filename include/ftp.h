@@ -20,6 +20,7 @@
 #include <signal.h>
 
 #define MAX_CLIENTS 1024
+#define MAX_BUFFER_SIZE 1024
 
 // Server Struct
 
@@ -30,6 +31,7 @@ typedef struct client_s {
     char *username;
     bool is_logged;
     char *path;
+    char input_buffer[MAX_BUFFER_SIZE];
 } client_t;
 
 typedef struct server_s {
