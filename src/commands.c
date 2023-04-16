@@ -89,14 +89,14 @@ void handle_commands(client_t *client, char *buffer, int valread)
         return;
     }
     idx_ptr = strcat(client->input_buffer, buffer);
-    line_break_ptr = strchr(idx_ptr, '\n');
+    line_break_ptr = strstr(idx_ptr, "\r\n");
     while (line_break_ptr) {
-        memcpy(tmp_buffer, idx_ptr, line_break_ptr - idx_ptr + 1);
+        memcpy(tmp_buffer, idx_ptr, line_break_ptr - idx_ptr + 2);
         on_command(client, tmp_buffer);
-        memmove(client->input_buffer, line_break_ptr + 1,
-            strlen(line_break_ptr + 1) + 1);
+        memmove(client->input_buffer, line_break_ptr + 2,
+            strlen(line_break_ptr + 2) + 1);
         memset(tmp_buffer, 0, MAX_BUFFER_SIZE);
-        idx_ptr = line_break_ptr + 1;
-        line_break_ptr = strchr(idx_ptr, '\n');
+        idx_ptr = line_break_ptr + 2;
+        line_break_ptr = strstr(idx_ptr, "\r\n");
     }
 }
